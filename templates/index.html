@@ -186,7 +186,7 @@
 
             <form method="POST">
 
-                <input
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
 
                     type="text"
 
