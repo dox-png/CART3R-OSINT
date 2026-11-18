@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#09090d">
+  <meta name="description" content="CART3R OSINT — vérification technique de domaines publics.">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/static/icons/icon-192.png">
+  <link rel="stylesheet" href="/static/css/style.css">
+  <title>CART3R OSINT</title>
+</head>
+<body>
+  <main class="shell">
+    <header class="topbar">
+      <div class="brand-mark">C</div>
+      <div><p class="eyebrow">INTELLIGENCE TECHNIQUE</p><h1>CART3R <span>OSINT</span></h1></div>
+      <span class="status"><i></i> EN LIGNE</span>
+    </header>
+
+    <section class="hero">
+      <p class="eyebrow">DOMAIN INTELLIGENCE / 01</p>
+      <h2>Explore les <span>signaux publics.</span></h2>
+      <p class="muted">Analyse DNS et certificat TLS d'un domaine public. Pas de recherche de personnes privées.</p>
+    </section>
+
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% for category, message in messages %}
+        <div class="notice {{ category }}">{{ message }}</div>
+      {% endfor %}
+    {% endwith %}
+
+    <section class="panel">
+      <div class="panel-heading"><span class="number">01</span><div><h3>Analyse de domaine</h3><p>Entre un domaine que tu possèdes ou que tu es autorisé à examiner.</p></div></div>
+      <form method="post" class="search-form">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <label for="domain">NOM DE DOMAINE</label>
+        <div class="input-row">
+          <input id="domain" name="domain" type="text" inputmode="url" autocomplete="url" placeholder="example.com" maxlength="253" required>
+          <button type="submit">ANALYSER <span>↗</span></button>
+        </div>
+      </form>
+    </section>
+
+    {% if result %}
+    <section class="panel result-panel">
+      <div class="panel-heading"><span class="number">02</span><div><h3>Résultat</h3><p>{{ result.domain }}</p></div><span class="pill">TERMINÉ</span></div>
+      <div class="result-block"><p class="label">ADRESSES IP PUBLIQUES</p>
+        {% for address in result.addresses %}<code>{{ address }}</code>{% endfor %}
+      </div>
+      <div class="result-block"><p class="label">CERTIFICAT TLS</p>
+        {% if result.tls.error %}<p class="muted">{{ result.tls.error }}</p>
+        {% else %}
+          <div class="data-line"><span>Version</span><strong>{{ result.tls.version }}</strong></div>
+          <div class="data-line"><span>Expiration</span><strong>{{ result.tls.expires }}</strong></div>
+          <div class="data-line"><span>Émetteur</span><strong>{{ result.tls.issuer }}</strong></div>
+        {% endif %}
+      </div>
+    </section>
+    {% endif %}
+
+    <section class="panel">
+      <div class="panel-heading"><span class="number">03</span><div><h3>Historique local</h3><p>Dernières analyses enregistrées sur cette instance.</p></div></div>
+      {% if history %}
+        <div class="history">{% for item in history %}
+          <div class="history-row"><strong>{{ item.domain }}</strong><time>{{ item.created_at[:16].replace("T", " ") }}</time></div>
+        {% endfor %}</div>
+      {% else %}<p class="muted empty">Aucune analyse pour le moment.</p>{% endif %}
+    </section>
+
+    <footer><span>CART3R OSINT <b>v1.0</b></span><span>USAGE AUTORISÉ UNIQUEMENT</span></footer>
+  </main>
+  <script src="/static/js/app.js" defer></script>
+</body>
+</html>
